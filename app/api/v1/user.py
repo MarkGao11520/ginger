@@ -17,8 +17,4 @@ api = Redprint('user')
 @auth.login_required
 def get_user(uid):
     user = User.query.get_or_404(uid)
-    r = {
-        'nickname': user.nickname,
-        'email': user.email
-    }
-    return jsonify(r), 200
+    return jsonify(user), 200
