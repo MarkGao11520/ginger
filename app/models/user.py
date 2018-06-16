@@ -2,8 +2,9 @@
 create by gaowenfeng on 
 """
 from sqlalchemy import Column, Integer, String, SmallInteger
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
+from app.libs.error_code import NotFound, AuthFailed
 from app.models.base import Base, db
 
 __author__ = "gaowenfeng"
@@ -34,3 +35,15 @@ class User(Base):
             user.email = account
             user.password = secert
             db.session.add(user)
+
+    @staticmethod
+    def verify(email, password):
+        user = User.query.filter_by(email=email).first_or_404()
+        if not user.check_password(password):
+            raise AuthFailed()
+        return {'uid': user.id}
+
+    def check_password(self, raw):
+        if not self._password:
+            return False
+        return check_password_hash(self._password, raw)
