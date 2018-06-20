@@ -1,7 +1,7 @@
 """
 create by gaowenfeng on 
 """
-from sqlalchemy import Column, Integer, String, SmallInteger
+from sqlalchemy import Column, Integer, String, SmallInteger, orm
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app.libs.error_code import NotFound, AuthFailed
@@ -17,8 +17,18 @@ class User(Base):
     nickname = Column(String(24), nullable=False)
     _password = Column('password', String(128))
 
+    @orm.reconstructor
+    def __init__(self):
+        self.fields = ['id', 'email', 'nickname']
+
     def keys(self):
-        return ('id', 'email', 'nickname')
+        return self.fields
+
+    def hide(self, *keys):
+        [self.fields.remove(key) for key in keys]
+
+    def append(self, *keys):
+        [self.fields.append(key) for key in keys]
 
     @property
     def password(self):
@@ -44,7 +54,8 @@ class User(Base):
         user = User.query.filter_by(email=email).first_or_404()
         if not user.check_password(password):
             raise AuthFailed()
-        return {'uid': user.id}
+        scope = 'SuperScope' if user.auth == 2 else 'UserScope'
+        return {'uid': user.id, 'scope': scope}
 
     def check_password(self, raw):
         if not self._password:

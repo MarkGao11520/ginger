@@ -40,3 +40,7 @@ class UserEmailForm(ClientForm):
     def validate_account(self, value):
         if User.query.filter_by(email=value.data).first():
             raise ValidationError(message='账号已经存在')
+
+
+class TokenForm(BaseForm):
+    token = StringField(validators=[DataRequired()])

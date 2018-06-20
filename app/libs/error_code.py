@@ -13,6 +13,11 @@ class Success(APIException):
     error_code = 0
 
 
+class DeleteSuccess(Success):
+    code = 202
+    error_code = -1
+
+
 class ServerError(APIException):
     code = 500
     error_code = 999
@@ -41,4 +46,11 @@ class AuthFailed(APIException):
     code = 401
     msg = 'authorization failed'
     error_code = 1002
+
+
+class Forbidden(APIException):
+    code = 403
+    msg = 'forbidden, not in scope'
+    error_code = 1004
+
 
